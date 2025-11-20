@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>极速赛车 - 多平台伪3D赛车游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #1a1a2e, #16213e);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 2px solid #0f3460;
+            margin-bottom: 15px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e94560;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        }
+        
+        .currency-display {
+            background: rgba(15, 52, 96, 0.7);
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .currency-icon {
+            color: gold;
+            font-size: 16px;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .game-area {
+            background: rgba(15, 52, 96, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        #gameCanvas {
+            display: block;
+            background: #1a1a2e;
+            width: 100%;
+            height: auto;
+        }
+        
+        .game-ui {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .panel {
+            background: rgba(15, 52, 96, 0.5);
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .panel h2 {
+            color: #e94560;
+            margin-bottom: 12px;
+            font-size: 16px;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 6px;
+        }
+        
+        .car-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .car-option {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .car-option:hover {
+            background: rgba(233, 69, 96, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .car-option.selected {
+            background: rgba(233, 69, 96, 0.4);
+            border: 2px solid #e94560;
+        }
+        
+        .car-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .car-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .car-price {
+            color: gold;
+            font-size: 12px;
+        }
+        
+        .language-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+        
+        .lang-option {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 6px 3px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.3s;
+        }
+        
+        .lang-option:hover {
+            background: rgba(233, 69, 96, 0.2);
+        }
+        
+        .lang-option.selected {
+            background: rgba(233, 69, 96, 0.4);
+            border: 1px solid #e94560;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .control-key {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .key {
+            display: inline-block;
+            background: #0f3460;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #e94560, #c6364d);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: block;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(to right, #ff5777, #e94560);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .stat {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e94560;
+            margin-top: 5px;
+        }
+        
+        .game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #e94560;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+            width: 80%;
+            max-width: 400px;
+        }
+        
+        /* 移动端控制界面 */
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 15px;
+            z-index: 50;
+        }
+        
+        .control-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(15, 52, 96, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            border: 2px solid #e94560;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        .steering-wheel {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(15, 52, 96, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 2px solid #e94560;
+            touch-action: manipulation;
+        }
+        
+        .wheel-center {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e94560;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            border-top: 1px solid #0f3460;
+            margin-top: 15px;
+            color: #6a89b3;
+            font-size: 12px;
+        }
+        
+        /* 平板和桌面样式 */
+        @media (min-width: 768px) {
+            .game-container {
+                flex-direction: row;
+            }
+            
+            .game-area {
+                flex: 3;
+            }
+            
+            .game-ui {
+                flex: 1;
+                grid-template-columns: 1fr;
+            }
+            
+            .car-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .language-selector {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            .mobile-controls {
+                display: none !important;
+            }
+        }
+        
+        /* 手机样式 */
+        @media (max-width: 767px) {
+            .mobile-controls {
+                display: block;
+            }
+            
+            .car-selector {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .language-selector {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .lang-option {
+                font-size: 12px;
+                padding: 8px 5px;
+            }
+            
+            .panel h2 {
+                font-size: 18px;
+            }
+            
+            .car-name {
+                font-size: 12px;
+            }
+        }
+        
+        /* 横屏手机优化 */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .game-container {
+                flex-direction: row;
+            }
+            
+            .game-area {
+                flex: 2;
+            }
+            
+            .game-ui {
+                flex: 1;
+            }
+            
+            .mobile-controls {
+                bottom: 10px;
+            }
+            
+            .control-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+            
+            .steering-wheel {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo" id="logo-text">极速赛车</div>
+            <div class="currency-display">
+                <span class="currency-icon">💰</span>
+                <span id="currency">10,000</span>
+            </div>
+        </header>
+        
+        <div class="game-container">
+            <div class="game-area">
+                <canvas id="gameCanvas"></canvas>
+                <div class="game-message" id="gameMessage"></div>
+            </div>
+            
+            <div class="game-ui">
+                <div class="panel">
+                    <h2 id="lang-vehicles">车辆选择</h2>
+                    <div class="car-selector" id="carSelector">
+                        <!-- 车辆选项将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h2 id="lang-language">语言选择</h2>
+                    <div class="language-selector" id="languageSelector">
+                        <!-- 语言选项将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h2 id="lang-controls">游戏控制</h2>
+                    <div class="controls">
+                        <div class="control-key">
+                            <div id="lang-accelerate">加速</div>
+                            <div class="key">↑</div>
+                        </div>
+                        <div class="control-key">
+                            <div id="lang-brake">刹车</div>
+                            <div class="key">↓</div>
+                        </div>
+                        <div class="control-key">
+                            <div id="lang-left">左转</div>
+                            <div class="key">←</div>
+                        </div>
+                        <div class="control-key">
+                            <div id="lang-right">右转</div>
+                            <div class="key">→</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="startBtn">开始游戏</button>
+                
+                <div class="panel">
+                    <h2 id="lang-stats">游戏统计</h2>
+                    <div class="stats">
+                        <div class="stat">
+                            <div id="lang-speed">速度</div>
+                            <div class="stat-value" id="speedValue">0 km/h</div>
+                        </div>
+                        <div class="stat">
+                            <div id="lang-lap">圈数</div>
+                            <div class="stat-value" id="lapValue">0/3</div>
+                        </div>
+                        <div class="stat">
+                            <div id="lang-time">时间</div>
+                            <div class="stat-value" id="timeValue">0.0s</div>
+                        </div>
+                        <div class="stat">
+                            <div id="lang-coins">金币</div>
+                            <div class="stat-value" id="coinsValue">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 移动端控制界面 -->
+        <div class="mobile-controls">
+            <div class="control-row">
+                <div class="control-btn" id="brakeBtn">↓</div>
+                <div class="steering-wheel" id="steeringWheel">
+                    <div class="wheel-center"></div>
+                </div>
+                <div class="control-btn" id="accelerateBtn">↑</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>伪3D赛车游戏 - 使用HTML5 Canvas和JavaScript开发</p>
+        </footer>
+    </div>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            running: false,
+            currency: 10000,
+            selectedCar: 0,
+            selectedLanguage: 'zh-CN',
+            cars: [
+                { id: 0, name: '初级赛车', price: 0, speed: 5, acceleration: 0.1, icon: '🚗', owned: true },
+                { id: 1, name: '运动跑车', price: 5000, speed: 7, acceleration: 0.15, icon: '🏎️', owned: false },
+                { id: 2, name: '超级跑车', price: 15000, speed: 9, acceleration: 0.2, icon: '🚀', owned: false },
+                { id: 3, name: '未来概念车', price: 30000, speed: 12, acceleration: 0.25, icon: '🛸', owned: false },
+                { id: 4, name: '越野车', price: 8000, speed: 6, acceleration: 0.12, icon: '🚙', owned: false },
+                { id: 5, name: '经典肌肉车', price: 12000, speed: 8, acceleration: 0.18, icon: '🇺🇸', owned: false }
+            ],
+            languages: {
+                'zh-CN': { name: '中文', strings: {
+                    'vehicles': '车辆选择',
+                    'language': '语言选择',
+                    'controls': '游戏控制',
+                    'accelerate': '加速',
+                    'brake': '刹车',
+                    'left': '左转',
+                    'right': '右转',
+                    'stats': '游戏统计',
+                    'speed': '速度',
+                    'lap': '圈数',
+                    'time': '时间',
+                    'coins': '金币',
+                    'start': '开始游戏',
+                    'buy': '购买',
+                    'owned': '已拥有',
+                    'select': '选择',
+                    'game-over': '游戏结束',
+                    'you-earned': '你获得了',
+                    'coins-unit': '金币',
+                    'press-start': '按开始游戏按钮开始',
+                    'logo': '极速赛车'
+                }},
+                'en-US': { name: 'English', strings: {
+                    'vehicles': 'Vehicles',
+                    'language': 'Language',
+                    'controls': 'Controls',
+                    'accelerate': 'Accelerate',
+                    'brake': 'Brake',
+                    'left': 'Left',
+                    'right': 'Right',
+                    'stats': 'Game Stats',
+                    'speed': 'Speed',
+                    'lap': 'Lap',
+                    'time': 'Time',
+                    'coins': 'Coins',
+                    'start': 'Start Game',
+                    'buy': 'Buy',
+                    'owned': 'Owned',
+                    'select': 'Select',
+                    'game-over': 'Game Over',
+                    'you-earned': 'You earned',
+                    'coins-unit': 'coins',
+                    'press-start': 'Press Start Game to begin',
+                    'logo': 'Racing Speed'
+                }},
+                'es-ES': { name: 'Español', strings: {
+                    'vehicles': 'Vehículos',
+                    'language': 'Idioma',
+                    'controls': 'Controles',
+                    'accelerate': 'Acelerar',
+                    'brake': 'Frenar',
+                    'left': 'Izquierda',
+                    'right': 'Derecha',
+                    'stats': 'Estadísticas',
+                    'speed': 'Velocidad',
+                    'lap': 'Vuelta',
+                    'time': 'Tiempo',
+                    'coins': 'Monedas',
+                    'start': 'Iniciar Juego',
+                    'buy': 'Comprar',
+                    'owned': 'Propio',
+                    'select': 'Seleccionar',
+                    'game-over': 'Juego Terminado',
+                    'you-earned': 'Ganaste',
+                    'coins-unit': 'monedas',
+                    'press-start': 'Presiona Iniciar Juego para comenzar',
+                    'logo': 'Carrera Veloz'
+                }},
+                'fr-FR': { name: 'Français', strings: {
+                    'vehicles': 'Véhicules',
+                    'language': 'Langue',
+                    'controls': 'Contrôles',
+                    'accelerate': 'Accélérer',
+                    'brake': 'Freiner',
+                    'left': 'Gauche',
+                    'right': 'Droite',
+                    'stats': 'Statistiques',
+                    'speed': 'Vitesse',
+                    'lap': 'Tour',
+                    'time': 'Temps',
+                    'coins': 'Pièces',
+                    'start': 'Commencer',
+                    'buy': 'Acheter',
+                    'owned': 'Possédé',
+                    'select': 'Sélectionner',
+                    'game-over': 'Jeu Terminé',
+                    'you-earned': 'Vous avez gagné',
+                    'coins-unit': 'pièces',
+                    'press-start': 'Appuyez sur Commencer pour débuter',
+                    'logo': 'Course Rapide'
+                }},
+                'de-DE': { name: 'Deutsch', strings: {
+                    'vehicles': 'Fahrzeuge',
+                    'language': 'Sprache',
+                    'controls': 'Steuerung',
+                    'accelerate': 'Beschleunigen',
+                    'brake': 'Bremsen',
+                    'left': 'Links',
+                    'right': 'Rechts',
+                    'stats': 'Spielstatistiken',
+                    'speed': 'Geschwindigkeit',
+                    'lap': 'Runde',
+                    'time': 'Zeit',
+                    'coins': 'Münzen',
+                    'start': 'Spiel starten',
+                    'buy': 'Kaufen',
+                    'owned': 'Besessen',
+                    'select': 'Auswählen',
+                    'game-over': 'Spiel beendet',
+                    'you-earned': 'Du hast verdient',
+                    'coins-unit': 'Münzen',
+                    'press-start': 'Drücke Spiel starten zum Beginnen',
+                    'logo': 'Rennsport'
+                }},
+                'ja-JP': { name: '日本語', strings: {
+                    'vehicles': '車両選択',
+                    'language': '言語選択',
+                    'controls': 'ゲームコントロール',
+                    'accelerate': '加速',
+                    'brake': 'ブレーキ',
+                    'left': '左',
+                    'right': '右',
+                    'stats': 'ゲーム統計',
+                    'speed': '速度',
+                    'lap': '周回数',
+                    'time': '時間',
+                    'coins': 'コイン',
+                    'start': 'ゲーム開始',
+                    'buy': '購入',
+                    'owned': '所有済み',
+                    'select': '選択',
+                    'game-over': 'ゲームオーバー',
+                    'you-earned': '獲得コイン',
+                    'coins-unit': 'コイン',
+                    'press-start': 'ゲーム開始ボタンを押して開始',
+                    'logo': 'レーシングスピード'
+                }},
+                'ko-KR': { name: '한국어', strings: {
+                    'vehicles': '차량 선택',
+                    'language': '언어 선택',
+                    'controls': '게임 컨트롤',
+                    'accelerate': '가속',
+                    'brake': '브레이크',
+                    'left': '왼쪽',
+                    'right': '오른쪽',
+                    'stats': '게임 통계',
+                    'speed': '속도',
+                    'lap': '랩',
+                    'time': '시간',
+                    'coins': '코인',
+                    'start': '게임 시작',
+                    'buy': '구매',
+                    'owned': '소유',
+                    'select': '선택',
+                    'game-over': '게임 오버',
+                    'you-earned': '획득 코인',
+                    'coins-unit': '코인',
+                    'press-start': '게임 시작 버튼을 눌러 시작',
+                    'logo': '레이싱 스피드'
+                }},
+                'ru-RU': { name: 'Русский', strings: {
+                    'vehicles': 'Выбор автомобиля',
+                    'language': 'Выбор языка',
+                    'controls': 'Управление',
+                    'accelerate': 'Ускорить',
+                    'brake': 'Тормоз',
+                    'left': 'Влево',
+                    'right': 'Вправо',
+                    'stats': 'Статистика',
+                    'speed': 'Скорость',
+                    'lap': 'Круг',
+                    'time': 'Время',
+                    'coins': 'Монеты',
+                    'start': 'Начать игру',
+                    'buy': 'Купить',
+                    'owned': 'Владею',
+                    'select': 'Выбрать',
+                    'game-over': 'Игра окончена',
+                    'you-earned': 'Вы заработали',
+                    'coins-unit': 'монет',
+                    'press-start': 'Нажмите Начать игру для старта',
+                    'logo': 'Гоночная Скорость'
+                }},
+                'pt-BR': { name: 'Português', strings: {
+                    'vehicles': 'Veículos',
+                    'language': 'Idioma',
+                    'controls': 'Controles',
+                    'accelerate': 'Acelerar',
+                    'brake': 'Frear',
+                    'left': 'Esquerda',
+                    'right': 'Direita',
+                    'stats': 'Estatísticas',
+                    'speed': 'Velocidade',
+                    'lap': 'Volta',
+                    'time': 'Tempo',
+                    'coins': 'Moedas',
+                    'start': 'Iniciar Jogo',
+                    'buy': 'Comprar',
+                    'owned': 'Possuído',
+                    'select': 'Selecionar',
+                    'game-over': 'Fim de Jogo',
+                    'you-earned': 'Você ganhou',
+                    'coins-unit': 'moedas',
+                    'press-start': 'Pressione Iniciar Jogo para começar',
+                    'logo': 'Velocidade de Corrida'
+                }},
+                'ar-SA': { name: 'العربية', strings: {
+                    'vehicles': 'اختيار المركبة',
+                    'language': 'اختيار اللغة',
+                    'controls': 'عناصر التحكم',
+                    'accelerate': 'تسريع',
+                    'brake': 'فرملة',
+                    'left': 'يسار',
+                    'right': 'يمين',
+                    'stats': 'إحصائيات اللعبة',
+                    'speed': 'السرعة',
+                    'lap': 'الدورة',
+                    'time': 'الوقت',
+                    'coins': 'العملات',
+                    'start': 'بدء اللعبة',
+                    'buy': 'شراء',
+                    'owned': 'مملوك',
+                    'select': 'اختيار',
+                    'game-over': 'انتهت اللعبة',
+                    'you-earned': 'لقد ربحت',
+                    'coins-unit': 'عملة',
+                    'press-start': 'اضغط بدء اللعبة للبدء',
+                    'logo': 'سباق السرعه'
+                }}
+            },
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        };
+
+        // 游戏变量
+        let canvas, ctx;
+        let player = {
+            x: 400,
+            y: 400,
+            speed: 0,
+            maxSpeed: 5,
+            acceleration: 0.1,
+            direction: 0,
+            steering: 0.03,
+            lap: 0,
+            coins: 0,
+            time: 0
+        };
+        
+        let keys = {};
+        let roadWidth = 2000;
+        let segmentLength = 200;
+        let trackLength = 1000;
+        let cameraHeight = 1000;
+        let cameraDepth = 0.84;
+        let segments = [];
+        let steeringTouchId = null;
+        let steeringValue = 0;
+        
+        // 初始化游戏
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // 调整Canvas大小
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // 生成赛道
+            generateTrack();
+            
+            // 初始化UI
+            initUI();
+            
+            // 设置事件监听
+            setupEventListeners();
+            
+            // 开始游戏循环
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 调整Canvas大小
+        function resizeCanvas() {
+            const gameArea = document.querySelector('.game-area');
+            const width = gameArea.clientWidth;
+            const height = Math.min(width * 0.6, window.innerHeight * 0.5);
+            
+            canvas.width = width;
+            canvas.height = height;
+        }
+        
+        // 生成赛道
+        function generateTrack() {
+            segments = [];
+            
+            // 创建赛道段
+            for(let i = 0; i < trackLength; i++) {
+                let segment = {
+                    index: i,
+                    curve: 0,
+                    y: 0,
+                    color: Math.floor(i / 10) % 2 ? '#6b8c42' : '#556b2f'
+                };
+                
+                // 添加曲线
+                if(i > 100 && i < 300) segment.curve = 0.5;
+                if(i > 400 && i < 600) segment.curve = -0.7;
+                if(i > 700 && i < 900) segment.curve = 0.8;
+                
+                // 添加起伏
+                if(i > 200 && i < 400) segment.y = Math.sin(i / 30) * 1000;
+                if(i > 600 && i < 800) segment.y = Math.cos(i / 40) * 800;
+                
+                segments.push(segment);
+            }
+        }
+        
+        // 初始化UI
+        function initUI() {
+            // 初始化车辆选择器
+            const carSelector = document.getElementById('carSelector');
+            carSelector.innerHTML = '';
+            
+            gameState.cars.forEach(car => {
+                const carElement = document.createElement('div');
+                carElement.className = `car-option ${car.owned ? 'owned' : ''} ${car.id === gameState.selectedCar ? 'selected' : ''}`;
+                carElement.innerHTML = `
+                    <div class="car-icon">${car.icon}</div>
+                    <div class="car-name">${car.name}</div>
+                    <div class="car-price">${car.owned ? gameState.languages[gameState.selectedLanguage].strings.owned : car.price + '💰'}</div>
+                `;
+                
+                carElement.addEventListener('click', () => {
+                    if(car.owned) {
+                        selectCar(car.id);
+                    } else if(gameState.currency >= car.price) {
+                        buyCar(car.id);
+                    }
+                });
+                
+                carSelector.appendChild(carElement);
+            });
+            
+            // 初始化语言选择器
+            const languageSelector = document.getElementById('languageSelector');
+            languageSelector.innerHTML = '';
+            
+            Object.keys(gameState.languages).forEach(langCode => {
+                const lang = gameState.languages[langCode];
+                const langElement = document.createElement('div');
+                langElement.className = `lang-option ${langCode === gameState.selectedLanguage ? 'selected' : ''}`;
+                langElement.textContent = lang.name;
+                
+                langElement.addEventListener('click', () => {
+                    selectLanguage(langCode);
+                });
+                
+                languageSelector.appendChild(langElement);
+            });
+            
+            // 更新UI文本
+            updateUIText();
+            
+            // 更新货币显示
+            updateCurrencyDisplay();
+        }
+        
+        // 选择车辆
+        function selectCar(carId) {
+            gameState.selectedCar = carId;
+            const car = gameState.cars[carId];
+            
+            player.maxSpeed = car.speed;
+            player.acceleration = car.acceleration;
+            
+            // 更新UI
+            document.querySelectorAll('.car-option').forEach((option, index) => {
+                option.classList.toggle('selected', index === carId);
+            });
+        }
+        
+        // 购买车辆
+        function buyCar(carId) {
+            const car = gameState.cars[carId];
+            
+            if(gameState.currency >= car.price) {
+                gameState.currency -= car.price;
+                car.owned = true;
+                updateCurrencyDisplay();
+                initUI(); // 刷新UI
+                selectCar(carId);
+            }
+        }
+        
+        // 选择语言
+        function selectLanguage(langCode) {
+            gameState.selectedLanguage = langCode;
+            
+            // 更新UI
+            document.querySelectorAll('.lang-option').forEach((option, index) => {
+                option.classList.toggle('selected', 
+                    Object.keys(gameState.languages)[index] === langCode);
+            });
+            
+            updateUIText();
+        }
+        
+        // 更新UI文本
+        function updateUIText() {
+            const lang = gameState.languages[gameState.selectedLanguage].strings;
+            
+            document.getElementById('lang-vehicles').textContent = lang.vehicles;
+            document.getElementById('lang-language').textContent = lang.language;
+            document.getElementById('lang-controls').textContent = lang.controls;
+            document.getElementById('lang-accelerate').textContent = lang.accelerate;
+            document.getElementById('lang-brake').textContent = lang.brake;
+            document.getElementById('lang-left').textContent = lang.left;
+            document.getElementById('lang-right').textContent = lang.right;
+            document.getElementById('lang-stats').textContent = lang.stats;
+            document.getElementById('lang-speed').textContent = lang.speed;
+            document.getElementById('lang-lap').textContent = lang.lap;
+            document.getElementById('lang-time').textContent = lang.time;
+            document.getElementById('lang-coins').textContent = lang.coins;
+            document.getElementById('startBtn').textContent = lang.start;
+            document.getElementById('logo-text').textContent = lang.logo;
+            
+            // 更新车辆选择器文本
+            document.querySelectorAll('.car-option').forEach((option, index) => {
+                const car = gameState.cars[index];
+                const priceElement = option.querySelector('.car-price');
+                priceElement.textContent = car.owned ? lang.owned : car.price + '💰';
+            });
+        }
+        
+        // 更新货币显示
+        function updateCurrencyDisplay() {
+            document.getElementById('currency').textContent = gameState.currency.toLocaleString();
+        }
+        
+        // 设置事件监听
+        function setupEventListeners() {
+            // 键盘事件
+            document.addEventListener('keydown', (e) => {
+                keys[e.key] = true;
+                
+                // 防止方向键滚动页面
+                if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                keys[e.key] = false;
+            });
+            
+            // 开始游戏按钮
+            document.getElementById('startBtn').addEventListener('click', () => {
+                if(!gameState.running) {
+                    startGame();
+                }
+            });
+            
+            // 移动端触摸控制
+            if (gameState.isMobile) {
+                setupMobileControls();
+            }
+            
+            // 防止触摸设备上的滚动
+            document.addEventListener('touchmove', (e) => {
+                if(gameState.running) e.preventDefault();
+            }, { passive: false });
+        }
+        
+        // 设置移动端控制
+        function setupMobileControls() {
+            const accelerateBtn = document.getElementById('accelerateBtn');
+            const brakeBtn = document.getElementById('brakeBtn');
+            const steeringWheel = document.getElementById('steeringWheel');
+            
+            // 加速按钮
+            accelerateBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys['ArrowUp'] = true;
+            });
+            
+            accelerateBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys['ArrowUp'] = false;
+            });
+            
+            // 刹车按钮
+            brakeBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys['ArrowDown'] = true;
+            });
+            
+            brakeBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys['ArrowDown'] = false;
+            });
+            
+            // 方向盘控制
+            steeringWheel.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (steeringTouchId === null) {
+                    steeringTouchId = e.changedTouches[0].identifier;
+                    updateSteering(e.changedTouches[0]);
+                }
+            });
+            
+            steeringWheel.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    if (e.changedTouches[i].identifier === steeringTouchId) {
+                        updateSteering(e.changedTouches[i]);
+                        break;
+                    }
+                }
+            });
+            
+            steeringWheel.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    if (e.changedTouches[i].identifier === steeringTouchId) {
+                        steeringTouchId = null;
+                        steeringValue = 0;
+                        keys['ArrowLeft'] = false;
+                        keys['ArrowRight'] = false;
+                        break;
+                    }
+                }
+            });
+        }
+        
+        // 更新方向盘控制
+        function updateSteering(touch) {
+            const rect = document.getElementById('steeringWheel').getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            const deltaX = touch.clientX - centerX;
+            const deltaY = touch.clientY - centerY;
+            
+            // 计算角度和距离
+            const angle = Math.atan2(deltaY, deltaX);
+            const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), rect.width / 2);
+            
+            // 转换为转向值 (-1 到 1)
+            steeringValue = Math.max(-1, Math.min(1, deltaX / (rect.width / 2)));
+            
+            // 更新按键状态
+            keys['ArrowLeft'] = steeringValue < -0.2;
+            keys['ArrowRight'] = steeringValue > 0.2;
+        }
+        
+        // 开始游戏
+        function startGame() {
+            gameState.running = true;
+            player.speed = 0;
+            player.lap = 0;
+            player.coins = 0;
+            player.time = 0;
+            
+            document.getElementById('startBtn').disabled = true;
+            updateStats();
+            
+            // 显示开始消息
+            showMessage(gameState.languages[gameState.selectedLanguage].strings.pressStart, 2000);
+        }
+        
+        // 结束游戏
+        function endGame() {
+            gameState.running = false;
+            document.getElementById('startBtn').disabled = false;
+            
+            // 奖励金币
+            const earnedCoins = Math.floor(player.coins + (player.lap * 100) + (1000 / player.time));
+            gameState.currency += earnedCoins;
+            updateCurrencyDisplay();
+            
+            // 显示结束消息
+            const lang = gameState.languages[gameState.selectedLanguage].strings;
+            showMessage(`${lang.game-over}! ${lang.you-earned} ${earnedCoins} ${lang.coins-unit}!`, 3000);
+        }
+        
+        // 显示消息
+        function showMessage(text, duration) {
+            const message = document.getElementById('gameMessage');
+            message.textContent = text;
+            message.style.display = 'block';
+            
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, duration);
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('speedValue').textContent = Math.abs(Math.round(player.speed * 50)) + ' km/h';
+            document.getElementById('lapValue').textContent = player.lap + '/3';
+            document.getElementById('timeValue').textContent = player.time.toFixed(1) + 's';
+            document.getElementById('coinsValue').textContent = player.coins;
+        }
+        
+        // 游戏循环
+        function gameLoop() {
+            if(gameState.running) {
+                update();
+            }
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 更新游戏状态
+        function update() {
+            // 处理输入
+            if(keys['ArrowUp'] || keys['w'] || keys['W']) {
+                player.speed += player.acceleration;
+            } else if(keys['ArrowDown'] || keys['s'] || keys['S']) {
+                player.speed -= player.acceleration * 2;
+            } else {
+                // 自然减速
+                player.speed *= 0.96;
+            }
+            
+            // 限制速度
+            if(player.speed > player.maxSpeed) player.speed = player.maxSpeed;
+            if(player.speed < -player.maxSpeed/2) player.speed = -player.maxSpeed/2;
+            
+            // 转向
+            if(keys['ArrowLeft'] || keys['a'] || keys['A']) {
+                player.direction -= player.steering * (player.speed / player.maxSpeed);
+            }
+            if(keys['ArrowRight'] || keys['d'] || keys['D']) {
+                player.direction += player.steering * (player.speed / player.maxSpeed);
+            }
+            
+            // 更新位置
+            player.x += Math.cos(player.direction) * player.speed;
+            player.y += Math.sin(player.direction) * player.speed;
+            
+            // 更新时间和圈数
+            player.time += 0.016; // 约60fps
+            
+            // 随机收集金币
+            if(Math.random() < 0.02) {
+                player.coins += 1;
+            }
+            
+            // 检查圈数
+            if(player.time > 0 && Math.floor(player.time) % 20 === 0 && player.speed > 0) {
+                player.lap++;
+                if(player.lap >= 3) {
+                    endGame();
+                }
+            }
+            
+            // 更新UI统计
+            updateStats();
+        }
+        
+        // 渲染游戏
+        function render() {
+            // 清除画布
+            ctx.fillStyle = '#6b8c42';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制天空
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#87CEEB');
+            skyGradient.addColorStop(1, '#98D8E8');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height / 2);
+            
+            // 绘制赛道
+            drawTrack();
+            
+            // 绘制玩家车辆
+            drawPlayer();
+            
+            // 绘制HUD
+            drawHUD();
+        }
+        
+        // 绘制赛道
+        function drawTrack() {
+            const baseSegment = Math.floor(player.y / segmentLength);
+            const basePercent = (player.y % segmentLength) / segmentLength;
+            
+            let x = 0;
+            let maxY = canvas.height;
+            let playerX = 0;
+            
+            // 绘制赛道段
+            for(let n = 0; n < 200; n++) {
+                const segment = segments[(baseSegment + n) % segments.length];
+                const nextSegment = segments[(baseSegment + n + 1) % segments.length];
+                
+                const percent = (n - basePercent) / 200;
+                const scale = 1 / (1 + Math.exp(-percent * 10)) * 2; // S曲线缩放
+                
+                const curve = segment.curve;
+                const nextCurve = nextSegment.curve;
+                
+                // 计算道路宽度和位置
+                const roadWidth = 1000 * scale;
+                const roadX = canvas.width / 2 + (curve * scale * canvas.width / 2);
+                const nextRoadX = canvas.width / 2 + (nextCurve * scale * canvas.width / 2);
+                
+                // 计算道路顶部和底部
+                const y = canvas.height - (percent * canvas.height);
+                
+                if(y < 0) continue;
+                if(y > maxY) continue;
+                
+                // 绘制道路段
+                ctx.fillStyle = segment.color;
+                ctx.beginPath();
+                ctx.moveTo(roadX - roadWidth, y);
+                ctx.lineTo(nextRoadX - roadWidth, y - canvas.height / 200);
+                ctx.lineTo(nextRoadX + roadWidth, y - canvas.height / 200);
+                ctx.lineTo(roadX + roadWidth, y);
+                ctx.closePath();
+                ctx.fill();
+                
+                // 绘制道路中线
+                if(n % 4 === 0) {
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 4 * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(roadX, y);
+                    ctx.lineTo(nextRoadX, y - canvas.height / 200);
+                    ctx.stroke();
+                }
+                
+                // 绘制道路边线
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 6 * scale;
+                ctx.beginPath();
+                ctx.moveTo(roadX - roadWidth, y);
+                ctx.lineTo(nextRoadX - roadWidth, y - canvas.height / 200);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(roadX + roadWidth, y);
+                ctx.lineTo(nextRoadX + roadWidth, y - canvas.height / 200);
+                ctx.stroke();
+                
+                // 记录玩家位置
+                if(n === 0) {
+                    playerX = roadX;
+                }
+            }
+            
+            // 更新玩家X位置（基于道路曲率）
+            player.x = playerX;
+        }
+        
+        // 绘制玩家车辆
+        function drawPlayer() {
+            const car = gameState.cars[gameState.selectedCar];
+            const carWidth = 40 * (canvas.width / 800);
+            const carHeight = 70 * (canvas.width / 800);
+            
+            ctx.save();
+            ctx.translate(player.x, canvas.height - 100);
+            ctx.rotate(player.direction);
+            
+            // 车身
+            ctx.fillStyle = '#e94560';
+            ctx.fillRect(-carWidth/2, -carHeight/2, carWidth, carHeight);
+            
+            // 车窗
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(-carWidth/2 + 5, -carHeight/2 + 5, carWidth - 10, 15);
+            
+            // 车轮
+            ctx.fillStyle = '#333';
+            ctx.fillRect(-carWidth/2 - 5, -carHeight/2 + 10, 5, 15);
+            ctx.fillRect(-carWidth/2 - 5, carHeight/2 - 25, 5, 15);
+            ctx.fillRect(carWidth/2, -carHeight/2 + 10, 5, 15);
+            ctx.fillRect(carWidth/2, carHeight/2 - 25, 5, 15);
+            
+            // 车图标
+            ctx.font = `${20 * (canvas.width / 800)}px Arial`;
+            ctx.fillText(car.icon, -10, 5);
+            
+            ctx.restore();
+        }
+        
+        // 绘制HUD
+        function drawHUD() {
+            // 速度表
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(20, 20, 150, 80);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '16px Arial';
+            ctx.fillText(gameState.languages[gameState.selectedLanguage].strings.speed, 30, 40);
+            ctx.font = '24px Arial';
+            ctx.fillText(Math.abs(Math.round(player.speed * 50)) + ' km/h', 30, 70);
+            
+            // 圈数显示
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(canvas.width - 170, 20, 150, 80);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '16px Arial';
+            ctx.fillText(gameState.languages[gameState.selectedLanguage].strings.lap, canvas.width - 160, 40);
+            ctx.font = '24px Arial';
+            ctx.fillText(player.lap + '/3', canvas.width - 160, 70);
+            
+            // 金币显示
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(canvas.width / 2 - 75, 20, 150, 50);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '16px Arial';
+            ctx.fillText(gameState.languages[gameState.selectedLanguage].strings.coins, canvas.width / 2 - 60, 40);
+            ctx.fillStyle = 'gold';
+            ctx.font = '20px Arial';
+            ctx.fillText(player.coins, canvas.width / 2 + 20, 42);
+        }
+        
+        // 初始化游戏
+        window.onload = init;
+    </script>
+</body>
+</html>
